@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Windows</title>
+     <style>
+
+      
+
+
+
+
+    /* 1. RESET & BASE STYLES */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #fff; }
+
+    /* 2. FULLSCREEN LOGIN / LOADER OVERLAY */
+    #login-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e1e2f, #121212);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    /* Form Container Card */
+    .login-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 40px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .login-card h2 { margin-bottom: 24px; font-weight: 600; letter-spacing: 1px; }
+    
+    .input-group { margin-bottom: 20px; text-align: left; }
+    .input-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #b3b3b3; }
+    
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .input-group input:focus { border-color: #3498db; }
+
+    /* Button styles */
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #3498db;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
+    }
+    .login-btn:hover { background-color: #2980b9; }
+    .login-btn:active { transform: scale(0.98); }
+
+    /* 3. DYNAMIC LOADING STATES (Hidden by default) */
+    .spinner {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255,255,255,0.1);
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
+    }
+    .loading-text { display: none; color: #3498db; margin-top: 15px; font-weight: 500; }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 4. MAIN WEBSITE CONTENT (Hidden until login complete) */
+    #main-content {
+      opacity: 0;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      transition: opacity 0.8s ease;
+    }
+    #main-content h1 { font-size: 3rem; margin-bottom: 20px; color: #3498db; }
+  </style>
+
+</head>
+<body class="page3">
+
+     <div id="login-wrapper">
+    <div class="login-card" id="login-card">
+      
+      <!-- Inside the Card: Initial Form State -->
+      <div id="form-content">
+        <h2>Member Login</h2>
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" required autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+          </div>
+          <button type="submit" class="login-btn">Log In</button>
+        </form>
+      </div>
+
+      <!-- Inside the Card: Hidden Loading State -->
+      <div class="spinner" id="loading-spinner"></div>
+      <p class="loading-text" id="loading-text">Verifying credentials...</p>
+
+    </div>
+  </div>
+
+    
+    <div class="desktop-container">
+        <img src="images/windows desktop.png" alt="windows desktop" class="windows-desktop" usemap="#desktop-map">
+        <map name="desktop-map" id="desktop-map">
+            <area shape="rect" coords="791,887,1204,1047" href="questionnaire.html" alt="email-form">
+        </map>
+
+        <script>
+            const img = document.querySelector('img[usemap="#desktop-map"]');
+            const map = document.querySelector('map[name="desktop-map"]');
+            map.querySelectorAll('area').forEach(a => a.dataset.orig = a.coords);
+            function rescale() {
+                const sx = img.clientWidth / img.naturalWidth;
+                const sy = img.clientHeight / img.naturalHeight;
+            map.querySelectorAll('area').forEach(a => {
+                a.coords = a.dataset.orig.split(',').map((n,i)=>Math.round(n*(i%2?sy:sx))).join(',');
+             });
+            }
+            addEventListener('load', rescale);
+            addEventListener('resize', rescale);
+        </script>
+
+    </div>
+    
+ <script>
+    function handleLogin(event) {
+      // 1. Prevent the page from instantly refreshing out of the form submit
+      event.preventDefault();
+
+      const formContent = document.getElementById('form-content');
+      const spinner = document.getElementById('loading-spinner');
+      const loadingText = document.getElementById('loading-text');
+      const loginWrapper = document.getElementById('login-wrapper');
+      const mainContent = document.getElementById('main-content');
+
+      // 2. Hide the login input fields seamlessly
+      formContent.style.display = 'none';
+
+      // 3. Show the loading animation and status text inside the card
+      spinner.style.display = 'block';
+      loadingText.style.display = 'block';
+
+      // 4. Simulate a backend authentication delay (e.g., 2.5 seconds)
+      setTimeout(() => {
+        // Update text right before revealing content
+        loadingText.innerText = "Access Granted!";
+        loadingText.style.color = "#2ecc71"; // Turn text green
+        
+        setTimeout(() => {
+          // 5. Fade out the full screen overlay
+          loginWrapper.style.opacity = '0';
+          loginWrapper.style.visibility = 'hidden';
+
+          // 6. Fade in the actual dashboard content
+          mainContent.style.opacity = '1';
+        }, 600); // Small extra delay to let them see "Access Granted!"
+
+      }, 5000); 
+    }
+  </script>
+
+    
+</body>
+
+</html>
+

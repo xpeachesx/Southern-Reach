@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            overflow: hidden; /* Prevents scrollbars from appearing */
+            font-family: sans-serif;
+        }
+
+        /* Styling for the target image and its duplicates */
+        .clickable-image {
+            width: 400px; /* Center image size */
+            height: auto;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+            display: none; /* Hidden by default when the page first loads */
+        }
+
+        /* Subtle hover feedback for the main image */
+        .clickable-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* Class assigned strictly to the duplicated images */
+        .duplicate {
+            position: absolute;
+            pointer-events: none; /* Prevents cloned images from blocking clicks */
+            z-index: 10;
+        }
+
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #121212; /* Dark background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+             z-index: 9999; /* Keeps it on top of everything */
+             transition: opacity 0.5s ease, visibility 0.5s ease;
+            }
+
+/* Spinning animation */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid #3498db; /* Blue accent color */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: #ffffff;
+            font-family: sans-serif;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+/* Spin keyframes */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+/* Hide website content initially */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        
+    </style>
+
+
+</head>
+<body style="background-image: url('images/overgrown.png'); background-size: cover; background-repeat: no-repeat;">
+
+    <div id="loader-wrapper">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading, please wait...</p>
+  </div>
+
+<!-- Where the loading page starts -->
+
+      <!-- Main centered image. Replace the placeholder URL with your own image path -->
+    <img id="mainImage" class="clickable-image" src="images/distorted box.png" alt="Click Me">
+
+
+     <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loader-wrapper');
+      const content = document.getElementById('main-content');
+
+      setTimeout(() => {
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+        content.style.opacity = '1';
+      }, 5000); 
+    });
+  </script>
+
+<!-- Where the animation starts -->
+
+     <script>
+        const mainImage = document.getElementById('mainImage');
+        let isSpawning = false; // Flag to prevent multi-clicking during the interval loop
+        let clickCount = 0;     // NEW: Track how many times the user has clicked the image
+
+        // Wait 5 seconds (5000ms) after the script runs to reveal the main image
+        setTimeout(() => {
+            mainImage.style.display = 'block';
+        }, 10000);
+
+        mainImage.addEventListener('click', () => {
+            // NEW: If the chaos loop already completed, redirect on the subsequent click
+            if (clickCount >= 1) {
+                window.location.href = "border.html"; // <-- REPLACE WITH YOUR LINK
+                return;
+            }
+
+            // Exit early if the event sequence is actively spawning items
+            if (isSpawning) return; 
+            isSpawning = true;
+
+            // Spawns an image every 50ms (0.05 seconds)
+            const spawnInterval = setInterval(createDuplicate, 50);
+
+            // Set a timeout to clear the spawning loop after 5000 milliseconds (5 seconds)
+            setTimeout(() => {
+                clearInterval(spawnInterval);
+                
+                // Trigger the instant mass disappearance event
+                triggerInstantDisappearance();
+
+                // change background
+                changeBackground();
+
+                mainImage.src = "images/SR Prompt.png";
+
+                // NEW: Increment the click count to pivot the behavior for the next click
+                clickCount++;
+            }, 5000);
+        });
+
+        function createDuplicate() {
+            // Clone the original image node
+            const clone = mainImage.cloneNode(true);
+            
+            // Remove the original ID and event listener behavior so duplicates behave purely as graphics
+            clone.removeAttribute('id'); 
+            clone.classList.add('duplicate');
+
+            // Ensure cloned images inherit a block display state regardless of initial style overrides
+            clone.style.display = 'block';
+
+            // Generate a random width between 200px and 600px
+            const randomSize = Math.floor(Math.random() * (600 - 200 + 1)) + 200;
+            clone.style.width = `${randomSize}px`;
+
+            // Generate randomized viewport percentages
+            const randomX = Math.random() * 70; 
+            const randomY = Math.random() * 70;
+
+            // Apply positions randomly across the viewport screen
+            clone.style.left = `${randomX}vw`;
+            clone.style.top = `${randomY}vh`;
+
+            // Append the duplicate to the body container
+            document.body.appendChild(clone);
+        }
+
+        // Function to wipe out all duplicates instantly
+        function triggerInstantDisappearance() {
+            // Gather all elements with the 'duplicate' class name
+            const duplicates = document.querySelectorAll('.duplicate');
+
+            // Loop through all found duplicates and delete them from the DOM immediately
+            duplicates.forEach(img => img.remove());
+            
+            // Reset the spawning lock flag
+            isSpawning = false; 
+        }
+
+        function changeBackground() {
+            // OPTION A: Set a full-screen background image (Replace the URL with your background path)
+            document.body.style.backgroundImage = "url('images/after distortion.png')";
+        }
+        </script>
+</body>
+
+</body>
+</html>
